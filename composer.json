@@ -1,5 +1,5 @@
 {
-    "name": "koubaki/Tablasyn",
+    "name": "Tablasyn",
     "description": "A PHP framework that runs as a server, bypassing the legacy CGI architecture.",
     "license": "MIT",
     "require": {
