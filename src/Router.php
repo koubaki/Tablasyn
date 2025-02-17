@@ -7,42 +7,42 @@ use React\Http\Message\Response;
 class Router {
     public $routes;
     public $statuses;
-    
+
     private function handleHandlerType(ServerRequestInterface $request, array $route) {
         switch ($route['handlerType']) {
             case 'redirect':
                 switch ($route['redirType']) {
                     case 301:
                         return [true, $this->statuses[301]($request, $route['target'])];
-                    
+
                     case 302:
                         return [true, $this->statuses[302]($request, $route['target'])];
-                    
+
                     case 307:
                         return [true, $this->statuses[307]($request, $route['target'])];
-                    
+
                     case 308:
                         return [true, $this->statuses[308]($request, $route['target'])];
-                    
+
                     default:
                         return [true, $this->statuses[303]($request)];
                 }
-            
+
             case 'custom':
                 return [true, $route['handler']($request)];
-            
+
             case 'group':
                 if ($route['groupTester']()) {
                     return [false, $route['group']];
                 } else {
                     return [true, $route['handler']($request)];
                 }
-            
+
             default:
                 return [true, $this->statuses[701]($request)];
         }
     }
-    
+
     public function __construct() {
         $this->routes = [];
         $this->statuses = [
@@ -75,14 +75,14 @@ class Router {
             }
         ];
     }
-    
+
     public function route(ServerRequestInterface $request) {
         $index = 0;
         $routeGroup = $this->routes;
-        
+
         while ($index < count($routeGroup)) {
             $route = $routeGroup[$index];
-            
+
             switch ($route['testerType']) {
                 case 'uri':
                     if ($this->simplifyUri($route['uri']) === $this->simplifyUri($request->getUri()->getPath())) {
@@ -105,7 +105,7 @@ class Router {
                         }
                     }
                 break;
-                
+
                 case 'regex':
                     if (preg_match($route['regex'], $this->simplifyUri($request->getUri()->getPath()))) {
                         if (isset($route['methods'])) {
@@ -127,7 +127,7 @@ class Router {
                         }
                     }
                 break;
-                
+
                 case 'broad':
                     if (isset($route['methods'])) {
                         if (in_array($request->getMethod(), $route['methods'], true)) {
@@ -147,7 +147,7 @@ class Router {
                         $index = 0;
                     }
                 break;
-                
+
                 case 'custom':
                     if ($route['tester']($request)) {
                         if (isset($route['methods'])) {
@@ -169,22 +169,22 @@ class Router {
                         }
                     }
                 break;
-                
+
                 default:
                     return $this->statuses[702]($request);
             }
-            
+
             $index++;
         }
-        
+
         return $this->statuses[404]($request);
     }
-    
+
     public function simplifyUri(string $uri) {
         $result = str_replace('\\', '/', $uri);
         $result = rtrim($result, '/');
         $result = preg_replace('#/+#', '/', $result);
-        
+
         return $result;
     }
 }
