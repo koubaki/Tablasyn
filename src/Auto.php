@@ -9,9 +9,9 @@ class Auto {
             if (($file = @file_get_contents(str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/autorun.json'))) === false) {
                 throw new Exception('No autorun.json file');
             }
-            
+
             $file = json_decode($file, true);
-            
+
             if ((json_last_error() !== JSON_ERROR_NONE) || (!is_array($file))) {
                 throw new Exception('Invalid JSON');
             } else {
